@@ -7,6 +7,7 @@ import random
 
 mc = Minecraft.create()
 
+puzzleRoomStart = Vec3(0,35,0)
 boardstart = Vec3(0,35,0)
 boardend = Vec3(8,35,8)
 blue = Vec3(7,36,1)
