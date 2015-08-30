@@ -3,6 +3,8 @@ from mcpi import block
 from mcpi.vec3 import Vec3
 import time
 import random
+from math import trunc
+import picamera
 #import explorerhat
 
 mc = Minecraft.create()
@@ -15,8 +17,6 @@ puzRoomHeight = 8
 
 puzRoomFloorStart = Vec3(2,0,2)
 puzRoomFloorEnd = Vec3(puzRoomLength-2,1,puzRoomWidth-2)
-
-print(puzRoomFloorEnd)
 
 blue = Vec3(3,2,4)
 yellow = Vec3(5,2,4)
@@ -95,6 +95,38 @@ def showSequence():
         mc.setBlock(green,block.WOOL.id,15)
         time.sleep(1)
 
+def correctSequence():
+    mc.setBlocks(puzRoomFloorStart,puzRoomFloorEnd,block.GOLD_BLOCK)
+    mc.setBlock(blue,block.GOLD_BLOCK)
+    mc.setBlock(yellow,block.GOLD_BLOCK)
+    mc.setBlock(red,block.GOLD_BLOCK)
+    mc.setBlock(green,block.GOLD_BLOCK)
+    time.sleep(1)
+    mc.setBlocks(puzRoomFloorStart,puzRoomFloorEnd,block.DIAMOND_BLOCK)
+    mc.setBlock(blue,block.DIAMOND_BLOCK)
+    mc.setBlock(yellow,block.DIAMOND_BLOCK)
+    mc.setBlock(red,block.DIAMOND_BLOCK)
+    mc.setBlock(green,block.DIAMOND_BLOCK)
+    time.sleep(1)
+    mc.setBlocks(puzRoomFloorStart,puzRoomFloorEnd,block.GOLD_BLOCK)
+    mc.setBlock(blue,block.GOLD_BLOCK)
+    mc.setBlock(yellow,block.GOLD_BLOCK)
+    mc.setBlock(red,block.GOLD_BLOCK)
+    mc.setBlock(green,block.GOLD_BLOCK)
+    time.sleep(1)
+
+def photoBooth():
+    mc.setBlocks(puzRoomStart.x+(puzRoomLength//2)-1,puzRoomStart.y,puzRoomStart.z+1,puzRoomStart.x+((puzRoomLength//2)+1),puzRoomStart.y+(puzRoomHeight//2),puzRoomStart.z,block.GOLD_BLOCK)
+    mc.setBlocks(puzRoomStart.x+(puzRoomLength//2),puzRoomStart.y+2,puzRoomStart.z+1,puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+(puzRoomHeight//2)-1,puzRoomStart.z+1,block.AIR)
+    mc.setBlock(puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+(puzRoomHeight//2)-1,puzRoomStart.z,block.GLASS)
+    cameraTrigger = Vec3(puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+2,puzRoomStart.z+1)
+    print("Camera Trigger:",cameraTrigger)
+    while True:
+        pos = mc.player.getPos()
+        print(round(pos.x,0),round(pos.y,0),round(pos.z,0))
+        if trunc(pos.x) == cameraTrigger.x and trunc(pos.y) == cameraTrigger.y and trunc(pos.z) == cameraTrigger.z:
+            break
+
 ##def hint(channel,event):
 ##    if sequence[currentBlock] == blue:
 ##        explorerhat.light.blue.on()
@@ -115,6 +147,7 @@ def showSequence():
 
 clear()
 setup()
+photoBooth()
 
 while True:
 
@@ -169,20 +202,24 @@ while True:
         if currentBlock == len(sequence):
             correct = 1
             mc.postToChat("That is correct! Well done you legend!")
+            correctSequence()
             mc.postToChat("Now lets make it harder...")
             currentBlock=0
             difficulty+=1
             sequence = []
-            clear()
-            setup()
-            createSequence()
-            print(sequence)
+            if difficulty == 10:
+                print("")#camera
+            else:
+                clear()
+                setup()
+                createSequence()
+                print(sequence)
 
-            mc.postToChat("Watch the sequence!")
+                mc.postToChat("Watch the sequence!")
 
-            time.sleep(5)
+                time.sleep(5)
 
-            showSequence()
+                showSequence()
 
                 
 
