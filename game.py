@@ -2,9 +2,12 @@ from mcpi.minecraft import Minecraft
 from mcpi import block
 from mcpi.vec3 import Vec3
 import time
+from datetime import datetime
 import random
 from math import trunc
 import picamera
+import unicornhat as UH
+from threading import Thread
 #import explorerhat
 
 mc = Minecraft.create()
@@ -33,12 +36,22 @@ currentBlock = 0
 
 lives = 4
 
+Pixels = [
+    [[(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]],
+    [[(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)], [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)], [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)], [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)], [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)], [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)], [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)], [(255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255), (255, 255, 255)]],
+    [[(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0)]],
+    [[(0, 0, 0), (0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0)]],
+    [[(0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0)]],
+    [[(0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]],
+    [[(0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0), (132, 0, 0), (0, 0, 0)], [(0, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (132, 0, 0), (0, 0, 0), (0, 0, 0)]],
+    ]
+
 def clear():
     mc.setBlocks(puzRoomStart.x-10, puzRoomStart.y-10, puzRoomStart.z-10,puzRoomStart.x+30, puzRoomStart.y+30, puzRoomStart.z+30,block.AIR)
 
 def setup():
     ##create puzzle room outer TNT skin
-    mc.setBlocks(puzRoomStart.x,puzRoomStart.y-20,puzRoomStart.z,puzRoomStart.x+puzRoomLength,puzRoomStart.y+puzRoomHeight,puzRoomStart.z+puzRoomWidth,block.TNT,1)
+    mc.setBlocks(puzRoomStart.x,puzRoomStart.y-20,puzRoomStart.z,puzRoomStart.x+puzRoomLength,puzRoomStart.y+puzRoomHeight,puzRoomStart.z+puzRoomWidth,block.TNT.id,1)
     ##patterned inner layer of wall
     pattern=[block.WOOL,block.WOOL,block.WOOL.id,11,block.WOOL,block.WOOL.id,4,block.WOOL,block.WOOL.id,14,block.WOOL,block.WOOL.id,13,block.WOOL,block.WOOL]
     pattern=[0,0,11,0,4,0,14,0,13,0,0]
@@ -116,16 +129,32 @@ def correctSequence():
     time.sleep(1)
 
 def photoBooth():
-    mc.setBlocks(puzRoomStart.x+(puzRoomLength//2)-1,puzRoomStart.y,puzRoomStart.z+1,puzRoomStart.x+((puzRoomLength//2)+1),puzRoomStart.y+(puzRoomHeight//2),puzRoomStart.z,block.GOLD_BLOCK)
-    mc.setBlocks(puzRoomStart.x+(puzRoomLength//2),puzRoomStart.y+2,puzRoomStart.z+1,puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+(puzRoomHeight//2)-1,puzRoomStart.z+1,block.AIR)
-    mc.setBlock(puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+(puzRoomHeight//2)-1,puzRoomStart.z,block.GLASS)
-    cameraTrigger = Vec3(puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+2,puzRoomStart.z+1)
-    print("Camera Trigger:",cameraTrigger)
+    mc.setBlocks(puzRoomStart.x+(puzRoomLength//2)-1,puzRoomStart.y,puzRoomStart.z+1,puzRoomStart.x+((puzRoomLength//2)+1),puzRoomStart.y+(puzRoomHeight//2),puzRoomStart.z-1,block.GOLD_BLOCK)
+    mc.setBlocks(puzRoomStart.x+(puzRoomLength//2),puzRoomStart.y+2,puzRoomStart.z+1,puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+(puzRoomHeight//2)-1,puzRoomStart.z,block.AIR)
+    mc.setBlock(puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+(puzRoomHeight//2)-1,puzRoomStart.z-1,block.GLASS)
+    cameraTrigger = Vec3(puzRoomStart.x+((puzRoomLength//2)),puzRoomStart.y+2,puzRoomStart.z)
     while True:
         pos = mc.player.getPos()
-        print(round(pos.x,0),round(pos.y,0),round(pos.z,0))
         if trunc(pos.x) == cameraTrigger.x and trunc(pos.y) == cameraTrigger.y and trunc(pos.z) == cameraTrigger.z:
+            mc.setBlocks(pos.x,pos.y,pos.z+1,pos.x,pos.y+1,pos.z,block.GLASS)
+            mc.postToChat("Look at the camera!")
+            for i in range(len(Pixels),0,-1):
+                print("Seconds:",i-1)
+                t = Thread(target=updateUH, args=(Pixels[i-1],))
+                t.start()
+                time.sleep(1)
+                if(i==3):
+                    t = Thread(target=capture_frame)
+                    t.start()
             break
+
+def updateUH(pixels):
+    UH.set_pixels(pixels)
+    UH.show()
+
+def capture_frame():
+    with picamera.PiCamera() as cam:
+        cam.capture('/home/pi/Images/winner'+str(datetime.day)+'.jpg')
 
 ##def hint(channel,event):
 ##    if sequence[currentBlock] == blue:
